@@ -1,67 +1,77 @@
 $(function() {
+	loadSelectCities()
+	loadSelectTypes()
 	$('select').material_select();
 	$('#formulario').submit(function(event){
+		event.preventDefault();
 		var ciudad = $('#formulario').find('select[name="ciudad"]').val();
 		var tipo   = $('#formulario').find('select[name="tipo"]').val();
 		var precio = $('#formulario').find('input[name="precio"]').val();
-		event.preventDefault();
-		$.ajax(
-			{
+		var _precio = precio.split(';')
+		var min = _precio[0]
+		var max = _precio[1]
+		SendRequest(ciudad,tipo,min,max);
+	});
+	$('#mostrarTodos').click(function() {
+		$('select').val('');
+		$('select').material_select('destroy');
+  		$('select').material_select();
+		SendRequest();
+	});
+});//end ready
+function SendRequest(ciudad,tipo,min,max){
+	console.log(ciudad+"--"+tipo+"--"+min+"--"+max)
+	$.ajax(
+		{
 	  		url:'./buscador.php',
 	  		type:'POST',
 	  		data:{ 
 	  			ciudad:ciudad,
 	  			tipo:tipo,
-	  			precio:precio
-	  		}
-	  	}
-		).done( function(data){
-			$('#result').empty()
-			alert(data)
-		})
-	})
-
-	$("#mostrarTodos").click(function() {
-		event.preventDefault();
-		$.ajax(
-			{
-	  		url:'./test.php',
-	  		type:'POST',
-	  		data:{},
+	  			min:min,
+	  			max:max
+	  		},
+	  		beforeSend: function() {
+		      $('#result').empty()
+		    },
 	  		success: function(response) { 
+	  			console.log(response)
 				var obj = JSON.parse(response);
-				$.each( obj, function( key, value ) {
-	  			$(`<section class="col s12">
-					    <div class="card horizontal">
-					      <div class="card-image">
-					        <img src="img/home.jpg">
-					      </div>
-					      <div class="card-stacked">
-					        <div class="card-content">
-					          <p><b>Direccion:</b> ${value.Direccion} </p>
-					          <p><b>Ciudad:</b> ${value.Ciudad} </p>
-					          <p><b>Telefono:</b> ${value.Telefono} </p>
-					          <p><b>Codigo_Postal:</b> ${value.Codigo} </p>
-					          <p><b>Tipo:</b> ${value.tipo} </p>
-					          <p><b>Precio:</b><b class="orange-text" style="font-size: 1.4em;"> ${value.Precio} </b></p>
-					        </div>
-					        <div class="card-action">
-					          <a href="#">Ver mas</a>
-					        </div>
-					      </div>
-					    </div>
-					</section>`).appendTo('#result')
-				});
-	  		}
+				console.log(obj.length )
+				if( obj.length > 0 ){
+					$.each( obj, function( key, value ) {
+						$(`<section class="col s12">
+						    <div class="card horizontal">
+						      <div class="card-image">
+						        <img src="img/home.jpg">
+						      </div>
+						      <div class="card-stacked">
+						        <div class="card-content">
+						          <p><b>Direccion:</b> ${value.Direccion} </p>
+						          <p><b>Ciudad:</b> ${value.Ciudad} </p>
+						          <p><b>Telefono:</b> ${value.Telefono} </p>
+						          <p><b>Codigo_Postal:</b> ${value.Codigo_Postal} </p>
+						          <p><b>Tipo:</b> ${value.Tipo} </p>
+						          <p><b>Precio:</b><b class="orange-text" style="font-size: 1.4em;"> ${value.Precio} </b></p>
+						        </div>
+						        <div class="card-action">
+						          <a href="#">Ver mas</a>
+						        </div>
+						      </div>
+						    </div>
+						</section>`).appendTo('#result')
+					});
+				}else{
+					$('<h5>No hay resultados en la busqueda :( </h5>').appendTo('#result');
+				}
+	  		},
+	  		error: function () {
+	  			$('#result').empty()
+	  			$('#result').html('Ha ocurrido un error!')
+		    },
 	  	}
-		)
-	});
-
-	loadSelectCities()
-	loadSelectTypes()
-
-});//end ready
-
+	)
+}
 function loadSelectCities(){
   	$.ajax(
   		{

@@ -1,25 +1,16 @@
-<?php 
-$jsonFile = file_get_contents("data-1.json");
-$data = json_decode($jsonFile);
-try
-	{
-	  $places = [];
-	  foreach ($data as $key => $val) {
-	    $places[] = array(
-	    	"Id" => $val->Id,
-			"Direccion" => $val->Direccion,
-			"Ciudad" => $val->Ciudad,
-			"Telefono" => $val->Telefono,
-			"Codigo_Postal" => $val->Codigo_Postal,
-			"Tipo" => $val->Tipo,
-			"Precio" => $val->Precio
-	    );
-	  }
+<?php
 
-	  echo json_encode($places);
-	}
-	catch(Exception $out )
-	{
-	  echo $out ->getMessage();
-	}
+	$city = $_POST['ciudad'] ? $_POST['ciudad'] : "all";
+
+	$type = $_POST['tipo']  ? $_POST['tipo'] : "all";
+	
+	$rangePrice = $_POST['precio']  ? $_POST['precio'] : "all";
+
+	$rangePrice = $_POST['precio'];
+	
+    $precio = explode(";",$rangePrice);
+    $price_min = intval($precio[0]);
+    $price_max = intval($precio[1]);
+
+	echo ">".$city."/ ".$type.">".$price_min."/ >".$price_max;
 ?>

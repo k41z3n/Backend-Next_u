@@ -2,41 +2,43 @@
  	$jsonFile = file_get_contents("data-1.json");
 	$data = json_decode($jsonFile);
 
-	$city = "New York";
-	// $city = $_POST['ciudad'] ? $_POST['ciudad'] : "all";
-	$type = "";
-	// $type = $_POST['tipo']  ? $_POST['tipo'] : "all";
-	
-	// $rangePrice = $_POST['precio']  ? $_POST['precio'] : "all";
+	$city = isset($_POST['ciudad']) ? $_POST['ciudad'] : "all";
+	$type = isset($_POST['tipo']) ? $_POST['tipo'] : "all";
+	$pmin =  isset($_POST['min']) ? $_POST['min'] : 0;
+	$pmax =  isset($_POST['max']) ? $_POST['max'] : 100000;	
 
-	// $rangePrice = $_POST['precio'];
-    // $precio = explode(";",$rangePrice);
-    $price_min = 200;
-    // $price_min = intval($precio[0]);
-    $price_max = 8000;
-    // $price_max = intval($precio[1]);
+	function strToInt($_str){
+	  $num = str_replace('$','',$_str);
+	  $num = str_replace(',','',$num);
+	  return (int)$num;
+	}
 
 	try
 	{
-	  $filter = [];
-	  foreach ($data as $key => $val) {
-	  	if( $city == $val->Ciudad && $type != $val->Tipo || $price_min == $val->Precio || $price_max == $val->Precio ){
-		    $filter[] = array(
-		    	"Id" => $val->Id,
-				"Direccion" => $val->Direccion,
-				"Ciudad" => $val->Ciudad,
-				"Tipo" => $val->Tipo,
-				"Precio" => $val->Precio
-		    );
-	  	}
-	  }
-	  echo json_encode($filter);
+		$filter = [];
+		foreach ($data as $key => $val ) {
+			if( $city == $val->Ciudad || $city == "all"){
+				if( $type == $val->Tipo || $type == "all"){
+					$valPrice = strToInt($val->Precio);
+					if( $valPrice > $pmin && $valPrice < $pmax ){
+					    $filter[] = array(
+					    	"Id" => $val->Id,
+							"Direccion" => $val->Direccion,
+							"Ciudad" => $val->Ciudad,
+							"Telefono" => $val->Telefono,
+							"Codigo_Postal" => $val->Codigo_Postal,
+							"Tipo" => $val->Tipo,
+							"Precio" => $val->Precio
+					    );
+					}
+				}
+			}
+		}
+		
+		echo json_encode($filter);
 	}
 	catch(Exception $out )
 	{
 	  echo $out ->getMessage();
 	}
-
-
-	// echo ">".$city."/ ".$type.">".$price_min."/ >".$price_max;
 ?>
